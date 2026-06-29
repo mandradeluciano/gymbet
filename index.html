@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GymBet — Ranking da Galera</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg:#0d0d0d; --surface:#161616; --card:#1e1e1e; --border:#2a2a2a;
+    --green:#00e87a; --green-dim:#00e87a22;
+    --gold:#ffd23f;  --gold-dim:#ffd23f22;
+    --blue:#4a9eff;  --blue-dim:#4a9eff22;
+    --red:#ff4d4d;   --red-dim:#ff4d4d22;
+    --purple:#c084fc;
+    --muted:#666; --text:#f0f0f0; --subtext:#aaa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;padding:0 0 80px;}
+
+  /* ── COUNTDOWN BANNER ── */
+  .countdown-banner{
+    background:linear-gradient(90deg,#1a0a00,#2a1500,#1a0a00);
+    border-bottom:1px solid #ffd23f44;
+    padding:10px 24px;
+    display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;
+  }
+  .cd-label{font-size:11px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-weight:600;}
+  .cd-blocks{display:flex;gap:8px;align-items:center;}
+  .cd-block{text-align:center;}
+  .cd-num{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--gold);line-height:1;}
+  .cd-unit{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+  .cd-sep{font-family:'Space Mono',monospace;font-size:20px;color:#ffd23f55;padding-bottom:8px;}
+  .cd-event{font-size:12px;color:var(--subtext);}
+  .cd-event strong{color:var(--gold);}
+
+  /* ── HEADER ── */
+  header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+  .logo{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;letter-spacing:-1px;}
+  .logo span{color:var(--green);}
+  .header-pots{display:flex;gap:20px;flex-wrap:wrap;}
+  .pot-block{text-align:right;}
+  .pot-label{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+  .pot-value{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;}
+  .pot-value.monthly{color:var(--green);}
+  .pot-value.churrasco{color:var(--gold);}
+
+  /* ── PERIOD BAR ── */
+  .period-bar{padding:10px 24px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .period-info{font-size:12px;color:var(--subtext);}
+  .period-info strong{color:var(--text);}
+  .progress-wrap{flex:1;min-width:80px;max-width:180px;}
+  .progress-bg{height:4px;background:var(--border);border-radius:2px;}
+  .progress-fill{height:4px;background:var(--green);border-radius:2px;transition:width .4s;}
+  .progress-label{font-size:10px;color:var(--muted);margin-top:2px;text-align:right;}
+
+  /* ── TABS ── */
+  .tabs{display:flex;gap:1px;padding:12px 24px 0;border-bottom:1px solid var(--border);overflow-x:auto;}
+  .tab{padding:7px 13px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Space Grotesk',sans-serif;white-space:nowrap;}
+  .tab.active{color:var(--green);border-bottom-color:var(--green);}
+  .tab.gold-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+  .tab.blue-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+
+  main{padding:18px;max-width:740px;margin:0 auto;}
+
+  /* ── STAT BOXES ── */
+  .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:9px;margin-bottom:18px;}
+  .stat-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 13px;}
+  .stat-box.gold-box{border-color:#ffd23f44;background:linear-gradient(135deg,#2a2200,#1e1e1e);}
+  .stat-box.blue-box{border-color:#4a9eff44;background:linear-gradient(135deg,#002233,#1e1e1e);}
+  .stat-label{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
+  .stat-val{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;}
+
+  /* ── RANKING LIST ── */
+  .ranking-list{display:flex;flex-direction:column;gap:9px;}
+  .player-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 16px;display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:11px;}
+  .player-card.top1{border-color:var(--green);background:linear-gradient(135deg,#182a1e,#1e1e1e);}
+  .player-card.top2{border-color:#888;}
+  .player-card.top3{border-color:#a0672a;}
+  .rank-num{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;text-align:center;color:var(--muted);}
+  .rank-num.g{color:var(--green);} .rank-num.s{color:#bbb;} .rank-num.b{color:#cd8a3a;}
+  .player-name{font-size:15px;font-weight:600;margin-bottom:4px;}
+  .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:3px;}
+  .bar-bg{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:3px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+  .bar-lbl{font-family:'Space Mono',monospace;font-size:11px;color:var(--subtext);min-width:48px;text-align:right;}
+  .visit-stats{font-size:11px;color:var(--muted);}
+  .visit-stats span{color:var(--subtext);}
+  .badges{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap;}
+  .badge{font-size:10px;font-weight:600;letter-spacing:.5px;padding:2px 7px;border-radius:99px;text-transform:uppercase;}
+  .badge-streak{background:#ffd23f22;color:var(--gold);border:1px solid #ffd23f44;}
+  .badge-leader{background:var(--green-dim);color:var(--green);border:1px solid #00e87a44;}
+  .badge-risk{background:var(--red-dim);color:var(--red);border:1px solid #ff4d4d44;}
+  .badge-cap{background:var(--blue-dim);color:var(--blue);border:1px solid #4a9eff44;}
+  .player-prize{text-align:right;}
+  .prize-val{font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:var(--green);}
+  .prize-pct{font-size:11px;color:var(--muted);margin-top:1px;}
+
+  /* ── SECTION TITLE ── */
+  .section-title{font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+
+  /* ── DASHBOARD PLAYER ── */
+  .dash-section{display:flex;flex-direction:column;gap:16px;}
+  .dash-player-select{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
+  .dash-player-btn{padding:7px 16px;font-size:13px;font-weight:600;border-radius:99px;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--subtext);font-family:'Space Grotesk',sans-serif;transition:all .2s;}
+  .dash-player-btn.active{background:var(--green);color:#0d0d0d;border-color:var(--green);}
+
+  .player-dash-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:16px;}
+  .player-dash-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  .player-dash-name{font-size:22px;font-weight:700;}
+  .player-dash-rank{font-size:13px;color:var(--muted);}
+  .player-dash-rank strong{color:var(--gold);}
+
+  .dash-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:9px;}
+  .dash-kpi{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:11px 12px;}
+  .dash-kpi-label{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
+  .dash-kpi-val{font-family:'Space Mono',monospace;font-size:17px;font-weight:700;}
+
+  .month-breakdown{display:flex;flex-direction:column;gap:6px;}
+  .month-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;}
+  .month-row-name{font-size:12px;font-weight:600;min-width:36px;}
+  .month-row-bar-bg{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+  .month-row-bar-fill{height:100%;border-radius:3px;background:var(--green);}
+  .month-row-stats{font-family:'Space Mono',monospace;font-size:11px;color:var(--subtext);min-width:80px;text-align:right;}
+
+  .recent-visits{display:flex;flex-direction:column;gap:6px;}
+  .recent-visit-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:12px;}
+  .rv-date{color:var(--subtext);font-family:'Space Mono',monospace;}
+  .rv-stats{color:var(--muted);}
+  .rv-factor{font-family:'Space Mono',monospace;font-weight:700;color:var(--blue);}
+
+  /* ── H2H ── */
+  .h2h-section{display:flex;flex-direction:column;gap:14px;}
+  .h2h-selects{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .h2h-vs{font-size:14px;font-weight:700;color:var(--muted);}
+  .h2h-select{background:var(--card);border:1px solid var(--border);color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;padding:8px 12px;border-radius:8px;outline:none;flex:1;min-width:100px;}
+  .h2h-select:focus{border-color:var(--green);}
+  .btn-h2h{background:var(--green);color:#0d0d0d;border:none;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;padding:8px 18px;border-radius:8px;cursor:pointer;white-space:nowrap;}
+
+  .h2h-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:16px;}
+  .h2h-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;}
+  .h2h-player-name{font-size:18px;font-weight:700;}
+  .h2h-player-name.right{text-align:right;}
+  .h2h-vs-badge{font-family:'Space Mono',monospace;font-size:12px;color:var(--muted);text-align:center;padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;}
+
+  .h2h-stat-rows{display:flex;flex-direction:column;gap:8px;}
+  .h2h-stat-row{display:flex;align-items:center;gap:8px;}
+  .h2h-stat-label{font-size:11px;color:var(--muted);text-align:center;min-width:90px;}
+  .h2h-val-a,.h2h-val-b{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;min-width:52px;text-align:center;}
+  .h2h-val-a.win{color:var(--green);} .h2h-val-b.win{color:var(--green);}
+  .h2h-bar-wrap{flex:1;display:flex;gap:3px;height:8px;}
+  .h2h-bar-a{height:100%;border-radius:3px 0 0 3px;background:var(--green);transition:width .5s;}
+  .h2h-bar-b{height:100%;border-radius:0 3px 3px 0;background:var(--blue);transition:width .5s;}
+
+  .h2h-month-grid{display:flex;flex-direction:column;gap:6px;}
+  .h2h-month-row{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;}
+  .h2h-month-val{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;}
+  .h2h-month-val.wina{color:var(--green);}
+  .h2h-month-val.winb{color:var(--blue);}
+  .h2h-month-val.right{text-align:right;}
+  .h2h-month-label{font-size:11px;color:var(--muted);text-align:center;}
+  .h2h-wins-banner{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg);}
+  .h2h-wins-block{text-align:center;}
+  .h2h-wins-num{font-family:'Space Mono',monospace;font-size:24px;font-weight:700;}
+  .h2h-wins-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+  .h2h-winner-crown{font-size:18px;text-align:center;}
+
+  /* ── CAMPEONATO ── */
+  .campeonato-section{display:flex;flex-direction:column;gap:16px;}
+  .camp-month-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .camp-month-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
+  .camp-month-title{font-size:14px;font-weight:700;}
+  .camp-month-winner{font-size:12px;color:var(--gold);}
+  .camp-month-toggle{font-size:12px;color:var(--muted);}
+  .camp-month-body{padding:12px 16px;display:flex;flex-direction:column;gap:8px;}
+  .camp-month-body.hidden{display:none;}
+  .camp-player-row{display:flex;align-items:center;gap:10px;}
+  .camp-player-rank{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;min-width:24px;color:var(--muted);}
+  .camp-player-rank.g{color:var(--gold);}
+  .camp-player-name{font-size:13px;font-weight:600;min-width:70px;}
+  .camp-bar-bg{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+  .camp-bar-fill{height:100%;border-radius:3px;}
+  .camp-player-val{font-family:'Space Mono',monospace;font-size:12px;color:var(--subtext);min-width:90px;text-align:right;}
+  .camp-overall-card{background:linear-gradient(135deg,#0d1a12,#1e1e1e);border:1px solid #00e87a33;border-radius:12px;padding:16px;}
+  .camp-overall-title{font-size:11px;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;}
+  .camp-overall-list{display:flex;flex-direction:column;gap:7px;}
+  .camp-overall-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;}
+
+  /* ── CHURRASCO ── */
+  .churrasco-section{display:flex;flex-direction:column;gap:16px;}
+  .churr-hero{background:linear-gradient(135deg,#2a1f00,#1a1500,#1e1e1e);border:1px solid #ffd23f55;border-radius:14px;padding:22px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+  .churr-hero-left h2{font-size:13px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+  .churr-hero-left p{font-size:13px;color:var(--subtext);line-height:1.7;max-width:280px;}
+  .churr-total-box{text-align:center;}
+  .churr-total-label{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+  .churr-total-val{font-family:'Space Mono',monospace;font-size:32px;font-weight:700;color:var(--gold);}
+  .churr-total-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+  .churr-breakdown{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .churr-breakdown-title{padding:12px 16px;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);}
+  .churr-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);gap:12px;}
+  .churr-row:last-child{border-bottom:none;}
+  .churr-month{font-size:14px;font-weight:600;}
+  .churr-month-detail{font-size:11px;color:var(--muted);margin-top:2px;}
+  .churr-amount{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--gold);text-align:right;}
+  .churr-status{font-size:11px;margin-top:2px;text-align:right;}
+  .churr-status.done{color:var(--green);} .churr-status.active{color:var(--gold);} .churr-status.wait{color:var(--muted);}
+  .churr-total-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:linear-gradient(135deg,#2a1f00,#1e1e1e);border:1px solid #ffd23f44;border-radius:10px;}
+  .churr-total-row .lbl{font-size:13px;color:var(--subtext);}
+  .churr-total-row .val{font-family:'Space Mono',monospace;font-size:19px;font-weight:700;color:var(--gold);}
+
+  /* ── REGISTER ── */
+  .register-section{display:flex;flex-direction:column;gap:14px;}
+  .form-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;}
+  .form-card h3{font-size:14px;font-weight:600;margin-bottom:14px;color:var(--subtext);}
+  .field-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:12px;}
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field label{font-size:10px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;}
+  .field select,.field input{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;padding:8px 10px;border-radius:8px;outline:none;transition:border-color .2s;}
+  .field select:focus,.field input:focus{border-color:var(--green);}
+  .factor-preview{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .factor-preview-label{font-size:12px;color:var(--muted);}
+  .factor-bar-wrap{flex:1;margin:0 12px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+  .factor-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:3px;transition:width .3s;}
+  .factor-preview-val{font-family:'Space Mono',monospace;font-size:17px;font-weight:700;color:var(--blue);}
+  .btn-register{background:var(--green);color:#0d0d0d;border:none;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;padding:10px;border-radius:8px;cursor:pointer;width:100%;}
+  .btn-register:hover{opacity:.85;}
+  .log-list{display:flex;flex-direction:column;gap:7px;}
+  .log-item{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;gap:10px;}
+  .log-left{display:flex;flex-direction:column;gap:2px;}
+  .log-name{font-size:13px;font-weight:600;}
+  .log-detail{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;}
+  .log-right{display:flex;align-items:center;gap:10px;}
+  .log-factor{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--blue);}
+  .log-remove{background:none;border:none;color:var(--red);cursor:pointer;font-size:15px;}
+
+  /* ── RULES ── */
+  .rules-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:18px;}
+  .rule-block h3{font-size:11px;color:var(--green);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;}
+  .rule-block p,.rule-block li{font-size:13px;color:var(--subtext);line-height:1.7;}
+  .rule-block ul{padding-left:18px;} .rule-block li{margin-bottom:3px;}
+  .formula-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-family:'Space Mono',monospace;font-size:12px;color:var(--green);line-height:2;}
+  .formula-box.gold{color:var(--gold);} .formula-box.blue{color:var(--blue);}
+  .divider{height:1px;background:var(--border);}
+
+  /* ── SETTINGS ── */
+  .settings-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:14px;}
+  .settings-card h3{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;}
+  .settings-field{display:flex;flex-direction:column;gap:5px;}
+  .settings-field label{font-size:11px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;}
+  .settings-field input,.settings-field select{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;padding:8px 11px;border-radius:8px;outline:none;}
+  .settings-field input:focus{border-color:var(--green);}
+  .deposit-preview{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:13px;display:flex;flex-direction:column;gap:7px;}
+  .dep-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;}
+  .dep-row .lbl{color:var(--subtext);} .dep-row .val{font-family:'Space Mono',monospace;font-weight:700;}
+  .dep-row .val.green{color:var(--green);} .dep-row .val.gold{color:var(--gold);}
+  .dep-divider{height:1px;background:var(--border);}
+  .dep-example{font-size:11px;color:var(--muted);line-height:1.6;}
+  .player-tags{display:flex;flex-wrap:wrap;gap:7px;}
+  .player-tag{display:flex;align-items:center;gap:5px;background:var(--bg);border:1px solid var(--border);border-radius:99px;padding:4px 11px;font-size:13px;}
+  .player-tag button{background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;}
+  .add-player-row{display:flex;gap:7px;}
+  .add-player-row input{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;padding:8px 11px;border-radius:8px;outline:none;}
+  .add-player-row input:focus{border-color:var(--green);}
+  .btn-add{background:var(--green-dim);color:var(--green);border:1px solid #00e87a44;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;padding:8px 16px;border-radius:8px;cursor:pointer;}
+  .btn-save{background:var(--green);color:#0d0d0d;border:none;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;padding:10px;border-radius:8px;cursor:pointer;width:100%;}
+
+  .hidden{display:none!important;}
+  @media(max-width:480px){
+    header{padding:14px;} main{padding:12px;} .tabs{padding:8px 12px 0;}
+    .player-card{padding:11px 12px;gap:8px;}
+    .cd-num{font-size:18px;} .cd-sep{font-size:16px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- COUNTDOWN BANNER -->
+<div class="countdown-banner">
+  <div class="cd-label">🍖 Churrasco em</div>
+  <div class="cd-blocks">
+    <div class="cd-block"><div class="cd-num" id="cdDias">--</div><div class="cd-unit">dias</div></div>
+    <div class="cd-sep">:</div>
+    <div class="cd-block"><div class="cd-num" id="cdHoras">--</div><div class="cd-unit">horas</div></div>
+    <div class="cd-sep">:</div>
+    <div class="cd-block"><div class="cd-num" id="cdMins">--</div><div class="cd-unit">min</div></div>
+    <div class="cd-sep">:</div>
+    <div class="cd-block"><div class="cd-num" id="cdSegs">--</div><div class="cd-unit">seg</div></div>
+  </div>
+  <div class="cd-event">🗓 <strong>08 de Dezembro de 2026</strong></div>
+</div>
+
+<header>
+  <div class="logo">Gym<span>Bet</span></div>
+  <div class="header-pots">
+    <div class="pot-block">
+      <div class="pot-label">🏅 Prêmio do Mês</div>
+      <div class="pot-value monthly" id="potMonthly">R$ 0</div>
+    </div>
+    <div class="pot-block">
+      <div class="pot-label">🍖 Caixa Churrasco</div>
+      <div class="pot-value churrasco" id="potChurrasco">R$ 0</div>
+    </div>
+  </div>
+</header>
+
+<div class="period-bar">
+  <div class="period-info">Mês: <strong id="periodLabel">—</strong></div>
+  <div class="progress-wrap">
+    <div class="progress-bg"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-label" id="progressLabel">0%</div>
+  </div>
+  <div class="period-info">Restam: <strong id="daysLeft">— dias</strong></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active"     onclick="showTab('ranking')">🏅 Ranking</button>
+  <button class="tab blue-tab"   onclick="showTab('dashboard')">👤 Atleta</button>
+  <button class="tab blue-tab"   onclick="showTab('h2h')">⚔️ H2H</button>
+  <button class="tab blue-tab"   onclick="showTab('campeonato')">📊 Temporada</button>
+  <button class="tab gold-tab"   onclick="showTab('churrasco')">🍖 Churrasco</button>
+  <button class="tab"            onclick="showTab('register')">✅ Registrar</button>
+  <button class="tab"            onclick="showTab('rules')">📋 Regras</button>
+  <button class="tab"            onclick="showTab('settings')">⚙️ Config</button>
+</div>
+
+<main>
+
+  <!-- RANKING -->
+  <div id="tab-ranking">
+    <div class="summary-grid" id="summaryGrid"></div>
+    <div class="ranking-list" id="rankingList"></div>
+  </div>
+
+  <!-- DASHBOARD ATLETA -->
+  <div id="tab-dashboard" class="hidden dash-section">
+    <div class="section-title">Dashboard do Atleta</div>
+    <div class="dash-player-select" id="dashPlayerBtns"></div>
+    <div id="dashContent"></div>
+  </div>
+
+  <!-- H2H -->
+  <div id="tab-h2h" class="hidden h2h-section">
+    <div class="section-title">Head to Head</div>
+    <div class="h2h-selects">
+      <select class="h2h-select" id="h2hPlayerA"></select>
+      <div class="h2h-vs">VS</div>
+      <select class="h2h-select" id="h2hPlayerB"></select>
+      <button class="btn-h2h" onclick="renderH2H()">Comparar</button>
+    </div>
+    <div id="h2hContent"></div>
+  </div>
+
+  <!-- CAMPEONATO -->
+  <div id="tab-campeonato" class="hidden campeonato-section">
+    <div class="section-title">Dashboard da Temporada — Mês a Mês</div>
+    <div id="campOverall"></div>
+    <div id="campMonths"></div>
+  </div>
+
+  <!-- CHURRASCO -->
+  <div id="tab-churrasco" class="hidden churrasco-section">
+    <div class="churr-hero">
+      <div class="churr-hero-left">
+        <h2>🍖 Caixa do Churrasco</h2>
+        <p>R$ <span id="churrPerPerson">50</span> por competidor por mês acumulam na caixa coletiva para o churrasco de encerramento em <strong style="color:var(--gold)">08/12</strong>.</p>
+      </div>
+      <div class="churr-total-box">
+        <div class="churr-total-label">Total acumulado</div>
+        <div class="churr-total-val" id="churrTotalVal">R$ 0</div>
+        <div class="churr-total-sub" id="churrTotalSub"></div>
+      </div>
+    </div>
+    <div class="churr-breakdown">
+      <div class="churr-breakdown-title">Contribuição por mês</div>
+      <div id="churrMonthRows"></div>
+    </div>
+    <div class="churr-total-row">
+      <span class="lbl">💰 Total disponível para o churrasco</span>
+      <span class="val" id="churrGrandTotal">R$ 0</span>
+    </div>
+  </div>
+
+  <!-- REGISTRAR -->
+  <div id="tab-register" class="hidden register-section">
+    <div class="form-card">
+      <h3>Registrar ida à academia</h3>
+      <div class="field-grid">
+        <div class="field"><label>Participante</label><select id="regPlayer"></select></div>
+        <div class="field"><label>Data</label><input type="date" id="regDate"></div>
+        <div class="field"><label>Tempo (min)</label><input type="number" id="regTempo" min="1" max="300" placeholder="ex: 60" oninput="updateFactorPreview()"></div>
+        <div class="field"><label>Calorias (kcal)</label><input type="number" id="regCalorias" min="1" max="2000" placeholder="ex: 400" oninput="updateFactorPreview()"></div>
+      </div>
+      <div class="factor-preview">
+        <div class="factor-preview-label">Fator desta ida</div>
+        <div class="factor-bar-wrap"><div class="factor-bar-fill" id="factorBarFill" style="width:0%"></div></div>
+        <div class="factor-preview-val" id="factorPreviewVal">—</div>
+      </div>
+      <button class="btn-register" onclick="registerVisit()">+ Registrar ida</button>
+    </div>
+    <div class="form-card">
+      <h3>Histórico</h3>
+      <div class="log-list" id="logList"></div>
+    </div>
+  </div>
+
+  <!-- REGRAS -->
+  <div id="tab-rules" class="hidden">
+    <div class="rules-card">
+      <div class="rule-block">
+        <h3>Depósito mensal por competidor</h3>
+        <div class="formula-box gold">
+          Total por pessoa/mês = R$ 150
+          ├─ R$ 100 → Prêmio do mês  (rateado pelo fator de cada um)
+          └─ R$  50 → Caixa coletiva  (churrasco em 08/12)
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="rule-block">
+        <h3>Fator por ida</h3>
+        <div class="formula-box blue">
+          Fator = min(2.0,  (tempo_min ÷ 60) × 0.7
+                          + (calorias  ÷ 500) × 0.3)
+
+          Referência: 60min + 500kcal = fator 1.0
+          Teto:       ≥ ~2h intenso   = fator 2.0
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="rule-block">
+        <h3>Rateio do mês</h3>
+        <div class="formula-box">
+          Pote = nº competidores × R$ 100
+          % = soma_fatores_do_atleta ÷ soma_fatores_de_todos
+          Prêmio = % × pote
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="rule-block">
+        <h3>Bônus de Sequência 🔥</h3>
+        <ul>
+          <li>3 dias seguidos → +5% na soma de fatores</li>
+          <li>7 dias seguidos → +10% na soma de fatores</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIG -->
+  <div id="tab-settings" class="hidden">
+    <div class="settings-card">
+      <h3>Período atual (mês)</h3>
+      <div class="settings-field"><label>Início</label><input type="date" id="cfgStart"></div>
+      <div class="settings-field"><label>Fim</label><input type="date" id="cfgEnd"></div>
+    </div>
+    <div class="settings-card">
+      <h3>Temporada</h3>
+      <div class="settings-field">
+        <label>Mês de início</label>
+        <select id="cfgSeasonStart">
+          <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option><option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option><option value="7" selected>Julho</option><option value="8">Agosto</option><option value="9">Setembro</option><option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+        </select>
+      </div>
+      <div class="settings-field">
+        <label>Mês de encerramento</label>
+        <select id="cfgSeasonEnd">
+          <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option><option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option><option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option><option value="10">Outubro</option><option value="11">Novembro</option><option value="12" selected>Dezembro</option>
+        </select>
+      </div>
+    </div>
+    <div class="settings-card">
+      <h3>Valores do depósito</h3>
+      <div class="settings-field"><label>Prêmio mensal por pessoa (R$)</label><input type="number" id="cfgMonthly" min="1" step="1" value="100" oninput="updateDepositPreview()"></div>
+      <div class="settings-field"><label>Churrasco por pessoa/mês (R$)</label><input type="number" id="cfgChurrasco" min="0" step="1" value="50" oninput="updateDepositPreview()"></div>
+      <div class="deposit-preview" id="depositPreview"></div>
+    </div>
+    <div class="settings-card">
+      <h3>Participantes</h3>
+      <div class="player-tags" id="playerTags"></div>
+      <div class="add-player-row" style="margin-top:10px;">
+        <input type="text" id="newPlayerName" placeholder="Nome">
+        <button class="btn-add" onclick="addPlayer()">+ Add</button>
+      </div>
+    </div>
+    <button class="btn-save" onclick="saveSettings()">💾 Salvar configuração</button>
+  </div>
+
+</main>
+
+<script>
+const MONTHS_PT   = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const MONTHS_FULL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const BAR_COLORS  = ['#00e87a','#4a9eff','#ffd23f','#c084fc','#fb923c','#f472b6'];
+const RC=['top1','top2','top3'], RS=['g','s','b'], RI=['🥇','🥈','🥉'];
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let state = JSON.parse(localStorage.getItem('gymbet5')||'null') || {
+  players:['Marcos','Bruno','Carol','Diego'],
+  start:'', end:'',
+  depositMonthly:100, depositChurrasco:50,
+  seasonStartMonth:7, seasonEndMonth:12,
+  visits:[]
+};
+if(!state.start){
+  const now=new Date(),y=now.getFullYear(),m=now.getMonth();
+  state.start=new Date(y,m,1).toISOString().slice(0,10);
+  state.end=new Date(y,m+1,0).toISOString().slice(0,10);
+}
+function save(){localStorage.setItem('gymbet5',JSON.stringify(state));}
+function fmtDate(d){if(!d)return'—';const[y,m,dd]=d.split('-');return`${dd}/${m}/${y}`;}
+function fmtMoney(n){return'R$ '+Math.round(n).toLocaleString('pt-BR');}
+function visitMonth(v){return parseInt(v.date.slice(5,7));}
+function pad2(n){return String(n).padStart(2,'0');}
+
+// ── COUNTDOWN ─────────────────────────────────────────────────────────────
+function updateCountdown(){
+  const target=new Date('2026-12-08T12:00:00');
+  const now=new Date();
+  const diff=target-now;
+  if(diff<=0){
+    document.getElementById('cdDias').textContent='🎉';
+    document.getElementById('cdHoras').textContent='00';
+    document.getElementById('cdMins').textContent='00';
+    document.getElementById('cdSegs').textContent='00';
+    return;
+  }
+  const dias=Math.floor(diff/86400000);
+  const horas=Math.floor((diff%86400000)/3600000);
+  const mins=Math.floor((diff%3600000)/60000);
+  const segs=Math.floor((diff%60000)/1000);
+  document.getElementById('cdDias').textContent=pad2(dias);
+  document.getElementById('cdHoras').textContent=pad2(horas);
+  document.getElementById('cdMins').textContent=pad2(mins);
+  document.getElementById('cdSegs').textContent=pad2(segs);
+}
+updateCountdown();
+setInterval(updateCountdown,1000);
+
+// ── FACTOR ────────────────────────────────────────────────────────────────
+function calcFator(tempo,calorias){
+  const t=parseFloat(tempo)||0, c=parseFloat(calorias)||0;
+  return Math.min(2.0,(t/60)*0.7+(c/500)*0.3);
+}
+
+// ── STREAK ────────────────────────────────────────────────────────────────
+function getStreak(player,filterFn){
+  const dates=[...new Set(
+    state.visits.filter(v=>v.player===player&&(!filterFn||filterFn(v))).map(v=>v.date)
+  )].sort();
+  if(!dates.length)return 0;
+  let streak=1,max=1;
+  for(let i=1;i<dates.length;i++){
+    const diff=(new Date(dates[i])-new Date(dates[i-1]))/86400000;
+    streak=diff===1?streak+1:1; max=Math.max(max,streak);
+  }
+  return max;
+}
+
+// ── COMPUTE MONTHLY (for a date range) ────────────────────────────────────
+function computeRangeRanking(s,e){
+  const base={},visits={},cappedCount={};
+  state.players.forEach(p=>{base[p]=0;visits[p]=0;cappedCount[p]=0;});
+  state.visits.forEach(v=>{
+    if(v.date>=s&&v.date<=e&&base[v.player]!==undefined){
+      const f=calcFator(v.tempo,v.calorias);
+      const raw=((parseFloat(v.tempo)||0)/60)*0.7+((parseFloat(v.calorias)||0)/500)*0.3;
+      base[v.player]+=f; visits[v.player]++; if(raw>2) cappedCount[v.player]++;
+    }
+  });
+  const eff={};
+  state.players.forEach(p=>{
+    const streak=getStreak(p,v=>v.date>=s&&v.date<=e);
+    const bonus=streak>=7?0.10:streak>=3?0.05:0;
+    eff[p]=base[p]*(1+bonus);
+  });
+  const totalEff=Object.values(eff).reduce((a,b)=>a+b,0);
+  const pot=state.players.length*state.depositMonthly;
+  return state.players.map(p=>{
+    const pct=totalEff>0?eff[p]/totalEff:0;
+    return{player:p,visits:visits[p],baseFactor:base[p],effFactor:eff[p],cappedCount:cappedCount[p],pct,prize:pct*pot,streak:getStreak(p,v=>v.date>=s&&v.date<=e)};
+  }).sort((a,b)=>b.effFactor-a.effFactor);
+}
+
+// ── SEASON MONTHS ─────────────────────────────────────────────────────────
+function getSeasonMonths(){
+  const months=[];
+  for(let m=state.seasonStartMonth;m<=state.seasonEndMonth;m++) months.push(m);
+  return months;
+}
+function monthDateRange(m){
+  const y=new Date().getFullYear();
+  const s=new Date(y,m-1,1).toISOString().slice(0,10);
+  const e=new Date(y,m,0).toISOString().slice(0,10);
+  return{s,e};
+}
+
+// ── RENDER RANKING (current month) ────────────────────────────────────────
+function renderRanking(){
+  const ranking=computeRangeRanking(state.start,state.end);
+  const churr=computeChurrascoData();
+  const pot=state.players.length*state.depositMonthly;
+
+  document.getElementById('potMonthly').textContent=fmtMoney(pot);
+  document.getElementById('potChurrasco').textContent=fmtMoney(churr.accrued);
+
+  if(state.start&&state.end){
+    const now=new Date(),s=new Date(state.start),e=new Date(state.end);
+    const total=(e-s)/86400000,elapsed=Math.min((now-s)/86400000,total);
+    const pct=Math.round(elapsed/total*100),left=Math.max(0,Math.ceil((e-now)/86400000));
+    document.getElementById('progressFill').style.width=pct+'%';
+    document.getElementById('progressLabel').textContent=pct+'% concluído';
+    document.getElementById('daysLeft').textContent=left+' dias';
+    document.getElementById('periodLabel').textContent=`${fmtDate(state.start)} → ${fmtDate(state.end)}`;
+  }
+
+  const totalVisits=ranking.reduce((a,r)=>a+r.visits,0);
+  const totalFactor=ranking.reduce((a,r)=>a+r.baseFactor,0);
+  document.getElementById('summaryGrid').innerHTML=`
+    <div class="stat-box"><div class="stat-label">Competidores</div><div class="stat-val">${state.players.length}</div></div>
+    <div class="stat-box"><div class="stat-label">Idas no mês</div><div class="stat-val">${totalVisits}</div></div>
+    <div class="stat-box blue-box"><div class="stat-label">Fator total</div><div class="stat-val" style="color:var(--blue)">${totalFactor.toFixed(1)}</div></div>
+    <div class="stat-box gold-box"><div class="stat-label">Prêmio do mês</div><div class="stat-val" style="color:var(--green)">${fmtMoney(pot)}</div></div>
+  `;
+
+  const list=document.getElementById('rankingList');
+  list.innerHTML='';
+  const maxF=Math.max(...ranking.map(r=>r.effFactor),0.01);
+  ranking.forEach((r,i)=>{
+    const barW=(r.effFactor/maxF*100).toFixed(1);
+    const pctD=(r.pct*100).toFixed(1);
+    let badges='';
+    if(i===0&&r.visits>0) badges+=`<span class="badge badge-leader">Líder</span>`;
+    if(r.streak>=7)        badges+=`<span class="badge badge-streak">🔥 ${r.streak}d streak</span>`;
+    else if(r.streak>=3)   badges+=`<span class="badge badge-streak">Streak ${r.streak}d</span>`;
+    if(r.cappedCount>0)    badges+=`<span class="badge badge-cap">⚡${r.cappedCount}× teto</span>`;
+    if(i===ranking.length-1&&r.visits===0) badges+=`<span class="badge badge-risk">Em risco</span>`;
+    list.innerHTML+=`
+      <div class="player-card ${RC[i]||''}">
+        <div class="rank-num ${RS[i]||''}">${RI[i]||'#'+(i+1)}</div>
+        <div class="player-info">
+          <div class="player-name">${r.player}</div>
+          <div class="bar-row">
+            <div class="bar-bg"><div class="bar-fill" style="width:${barW}%;background:${BAR_COLORS[i%6]}"></div></div>
+            <div class="bar-lbl">⚡${r.effFactor.toFixed(2)}</div>
+          </div>
+          <div class="visit-stats"><span>${r.visits} idas</span> · <span>base ${r.baseFactor.toFixed(2)}</span></div>
+          ${badges?`<div class="badges">${badges}</div>`:''}
+        </div>
+        <div class="player-prize">
+          <div class="prize-val">${fmtMoney(r.prize)}</div>
+          <div class="prize-pct">${pctD}% do pote</div>
+        </div>
+      </div>`;
+  });
+}
+
+// ── DASHBOARD ATLETA ──────────────────────────────────────────────────────
+let dashPlayer=null;
+function initDashboard(){
+  dashPlayer=dashPlayer||state.players[0];
+  const btns=document.getElementById('dashPlayerBtns');
+  btns.innerHTML=state.players.map(p=>
+    `<button class="dash-player-btn ${p===dashPlayer?'active':''}" onclick="selectDashPlayer('${p}')">${p}</button>`
+  ).join('');
+  renderDashboard();
+}
+function selectDashPlayer(p){dashPlayer=p;initDashboard();}
+function renderDashboard(){
+  const p=dashPlayer;
+  const myVisits=state.visits.filter(v=>v.player===p).sort((a,b)=>b.date.localeCompare(a.date));
+  const seasonMonths=getSeasonMonths();
+
+  // overall stats
+  let totalFactor=0,totalVisits=0,totalTime=0,totalCal=0,cappedCount=0;
+  myVisits.forEach(v=>{
+    const f=calcFator(v.tempo,v.calorias);
+    const raw=((parseFloat(v.tempo)||0)/60)*0.7+((parseFloat(v.calorias)||0)/500)*0.3;
+    totalFactor+=f; totalVisits++; totalTime+=parseFloat(v.tempo)||0;
+    totalCal+=parseFloat(v.calorias)||0; if(raw>2)cappedCount++;
+  });
+  const avgFactor=totalVisits>0?totalFactor/totalVisits:0;
+  const streak=getStreak(p);
+
+  // ranking in current month
+  const curRanking=computeRangeRanking(state.start,state.end);
+  const curRank=curRanking.findIndex(r=>r.player===p)+1;
+  const curPrize=curRanking.find(r=>r.player===p)?.prize||0;
+
+  // per-month breakdown
+  const monthData=seasonMonths.map(m=>{
+    const{s,e}=monthDateRange(m);
+    const mv=myVisits.filter(v=>v.date>=s&&v.date<=e);
+    const mf=mv.reduce((a,v)=>a+calcFator(v.tempo,v.calorias),0);
+    const mt=mv.reduce((a,v)=>a+(parseFloat(v.tempo)||0),0);
+    return{month:m,visits:mv.length,factor:mf,time:mt};
+  });
+  const maxMF=Math.max(...monthData.map(d=>d.factor),0.01);
+
+  const recent=myVisits.slice(0,6);
+
+  document.getElementById('dashContent').innerHTML=`
+    <div class="player-dash-card">
+      <div class="player-dash-header">
+        <div>
+          <div class="player-dash-name">${p}</div>
+          <div class="player-dash-rank">Posição atual: <strong>#${curRank}</strong> · Prêmio estimado: <strong style="color:var(--green)">${fmtMoney(curPrize)}</strong></div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Streak atual</div>
+          <div style="font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--gold);">🔥 ${streak}d</div>
+        </div>
+      </div>
+
+      <div class="dash-kpi-grid">
+        <div class="dash-kpi"><div class="dash-kpi-label">Total idas</div><div class="dash-kpi-val">${totalVisits}</div></div>
+        <div class="dash-kpi"><div class="dash-kpi-label">Fator total</div><div class="dash-kpi-val" style="color:var(--blue)">⚡${totalFactor.toFixed(1)}</div></div>
+        <div class="dash-kpi"><div class="dash-kpi-label">Fator médio/ida</div><div class="dash-kpi-val" style="color:var(--blue)">${avgFactor.toFixed(2)}</div></div>
+        <div class="dash-kpi"><div class="dash-kpi-label">Tempo total</div><div class="dash-kpi-val">${Math.round(totalTime/60)}h${Math.round(totalTime%60)}m</div></div>
+        <div class="dash-kpi"><div class="dash-kpi-label">Calorias total</div><div class="dash-kpi-val">${Math.round(totalCal).toLocaleString('pt-BR')}</div></div>
+        <div class="dash-kpi"><div class="dash-kpi-label">Idas no teto</div><div class="dash-kpi-val" style="color:var(--gold)">⚡${cappedCount}</div></div>
+      </div>
+
+      <div>
+        <div class="section-title">Desempenho por mês</div>
+        <div class="month-breakdown">
+          ${monthData.map(d=>`
+            <div class="month-row">
+              <div class="month-row-name">${MONTHS_PT[d.month-1]}</div>
+              <div class="month-row-bar-bg"><div class="month-row-bar-fill" style="width:${(d.factor/maxMF*100).toFixed(1)}%"></div></div>
+              <div class="month-row-stats">${d.visits} idas · ⚡${d.factor.toFixed(2)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">Últimas ${recent.length} idas</div>
+        <div class="recent-visits">
+          ${recent.length?recent.map(v=>{
+            const f=calcFator(v.tempo,v.calorias);
+            const capped=((parseFloat(v.tempo)||0)/60)*0.7+((parseFloat(v.calorias)||0)/500)*0.3>2;
+            return`<div class="recent-visit-item">
+              <div class="rv-date">${fmtDate(v.date)}</div>
+              <div class="rv-stats">${v.tempo}min · ${v.calorias}kcal</div>
+              <div class="rv-factor" style="color:${capped?'var(--gold)':'var(--blue)'}">⚡${f.toFixed(2)}${capped?' ⬆':''}</div>
+            </div>`;
+          }).join(''):'<div style="color:var(--muted);font-size:13px;">Sem idas registradas.</div>'}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ── H2H ───────────────────────────────────────────────────────────────────
+function initH2H(){
+  const sa=document.getElementById('h2hPlayerA');
+  const sb=document.getElementById('h2hPlayerB');
+  sa.innerHTML=state.players.map((p,i)=>`<option value="${p}" ${i===0?'selected':''}>${p}</option>`).join('');
+  sb.innerHTML=state.players.map((p,i)=>`<option value="${p}" ${i===1?'selected':''}>${p}</option>`).join('');
+}
+function renderH2H(){
+  const pa=document.getElementById('h2hPlayerA').value;
+  const pb=document.getElementById('h2hPlayerB').value;
+  if(pa===pb){document.getElementById('h2hContent').innerHTML='<div style="color:var(--red);font-size:13px;padding:12px 0;">Selecione dois atletas diferentes!</div>';return;}
+
+  const seasonMonths=getSeasonMonths();
+  // overall season stats
+  function playerStats(p){
+    const v=state.visits.filter(x=>x.player===p);
+    const factor=v.reduce((a,x)=>a+calcFator(x.tempo,x.calorias),0);
+    const time=v.reduce((a,x)=>a+(parseFloat(x.tempo)||0),0);
+    const cal=v.reduce((a,x)=>a+(parseFloat(x.calorias)||0),0);
+    return{visits:v.length,factor,time,cal,streak:getStreak(p)};
+  }
+  const sa=playerStats(pa), sb=playerStats(pb);
+
+  // month wins
+  let winsA=0,winsB=0,draws=0;
+  const monthRows=seasonMonths.map(m=>{
+    const{s,e}=monthDateRange(m);
+    const ra=computeRangeRanking(s,e).find(r=>r.player===pa)||{effFactor:0};
+    const rb=computeRangeRanking(s,e).find(r=>r.player===pb)||{effFactor:0};
+    const win=ra.effFactor>rb.effFactor?'a':rb.effFactor>ra.effFactor?'b':'draw';
+    if(win==='a')winsA++;else if(win==='b')winsB++;else draws++;
+    return{month:m,fa:ra.effFactor,fb:rb.effFactor,win};
+  });
+
+  function statRow(label,va,vb,fmt,higherWins=true){
+    const fa=parseFloat(va),fb=parseFloat(vb);
+    const winA=higherWins?fa>fb:fa<fb;
+    const winB=higherWins?fb>fa:fb<fa;
+    const total=fa+fb||1;
+    const pctA=(fa/total*100).toFixed(1),pctB=(fb/total*100).toFixed(1);
+    return`<div class="h2h-stat-row">
+      <div class="h2h-val-a ${winA?'win':''}">${fmt(va)}</div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div class="h2h-stat-label">${label}</div>
+        <div class="h2h-bar-wrap">
+          <div class="h2h-bar-a" style="width:${pctA}%"></div>
+          <div class="h2h-bar-b" style="width:${pctB}%"></div>
+        </div>
+      </div>
+      <div class="h2h-val-b ${winB?'win':''}">${fmt(vb)}</div>
+    </div>`;
+  }
+
+  const overallWinner=winsA>winsB?pa:winsB>winsA?pb:'Empate';
+
+  document.getElementById('h2hContent').innerHTML=`
+    <div class="h2h-card">
+      <div class="h2h-header">
+        <div class="h2h-player-name">${pa}</div>
+        <div class="h2h-vs-badge">VS</div>
+        <div class="h2h-player-name right">${pb}</div>
+      </div>
+
+      <div class="h2h-wins-banner">
+        <div class="h2h-wins-block"><div class="h2h-wins-num" style="color:var(--green)">${winsA}</div><div class="h2h-wins-lbl">vitórias</div></div>
+        <div class="h2h-winner-crown">${overallWinner==='Empate'?'🤝':`🏆 ${overallWinner}`}</div>
+        <div class="h2h-wins-block"><div class="h2h-wins-num" style="color:var(--blue)">${winsB}</div><div class="h2h-wins-lbl">vitórias</div></div>
+      </div>
+
+      <div class="h2h-stat-rows">
+        ${statRow('Idas totais',sa.visits,sb.visits,v=>v)}
+        ${statRow('Fator total',sa.factor.toFixed(2),sb.factor.toFixed(2),v=>v)}
+        ${statRow('Tempo total (h)',(sa.time/60).toFixed(1),(sb.time/60).toFixed(1),v=>v+'h')}
+        ${statRow('Calorias totais',Math.round(sa.cal),Math.round(sb.cal),v=>v.toLocaleString('pt-BR')+'kcal')}
+        ${statRow('Maior streak',sa.streak,sb.streak,v=>v+'d')}
+      </div>
+
+      <div>
+        <div class="section-title">Confronto mês a mês</div>
+        <div class="h2h-month-grid">
+          ${monthRows.map(r=>`
+            <div class="h2h-month-row">
+              <div class="h2h-month-val ${r.win==='a'?'wina':''}">⚡${r.fa.toFixed(2)}</div>
+              <div class="h2h-month-label">${MONTHS_PT[r.month-1]}</div>
+              <div class="h2h-month-val ${r.win==='b'?'winb':''} right">⚡${r.fb.toFixed(2)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ── CAMPEONATO ────────────────────────────────────────────────────────────
+function renderCampeonato(){
+  const seasonMonths=getSeasonMonths();
+  const now=new Date();
+
+  // overall accumulated factor per player across all season months
+  const overallFactor={};
+  state.players.forEach(p=>overallFactor[p]=0);
+  seasonMonths.forEach(m=>{
+    const{s,e}=monthDateRange(m);
+    const ranking=computeRangeRanking(s,e);
+    ranking.forEach(r=>overallFactor[r.player]+=r.effFactor);
+  });
+  const overallSorted=[...state.players].sort((a,b)=>overallFactor[b]-overallFactor[a]);
+  const maxOF=Math.max(...overallSorted.map(p=>overallFactor[p]),0.01);
+
+  // overall card
+  document.getElementById('campOverall').innerHTML=`
+    <div class="camp-overall-card">
+      <div class="camp-overall-title">🏆 Acumulado Geral da Temporada</div>
+      <div class="camp-overall-list">
+        ${overallSorted.map((p,i)=>`
+          <div class="camp-overall-row">
+            <div class="camp-player-rank ${i===0?'g':''}">${RI[i]||'#'+(i+1)}</div>
+            <div class="camp-player-name">${p}</div>
+            <div class="camp-bar-bg"><div class="camp-bar-fill" style="width:${(overallFactor[p]/maxOF*100).toFixed(1)}%;background:${BAR_COLORS[i%6]}"></div></div>
+            <div class="camp-player-val">⚡${overallFactor[p].toFixed(2)}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  // month-by-month cards
+  const monthsEl=document.getElementById('campMonths');
+  monthsEl.innerHTML='';
+  seasonMonths.forEach(m=>{
+    const{s,e}=monthDateRange(m);
+    const ranking=computeRangeRanking(s,e);
+    const monthEnd=new Date(e);
+    const isDone=monthEnd<now;
+    const isCurrent=m===now.getMonth()+1;
+    const hasData=ranking.some(r=>r.visits>0);
+    const winner=ranking[0];
+    const maxF=Math.max(...ranking.map(r=>r.effFactor),0.01);
+
+    const card=document.createElement('div');
+    card.className='camp-month-card';
+    const statusTag=isDone?'<span style="color:var(--green);font-size:11px;">✓ Encerrado</span>':isCurrent?'<span style="color:var(--gold);font-size:11px;">▶ Em andamento</span>':'<span style="color:var(--muted);font-size:11px;">⏳ Aguardando</span>';
+    const winnerTag=hasData?`<span class="camp-month-winner">🥇 ${winner.player} (⚡${winner.effFactor.toFixed(2)})</span>`:'<span style="color:var(--muted);font-size:12px;">Sem dados</span>';
+
+    card.innerHTML=`
+      <div class="camp-month-header" onclick="toggleCampMonth(this)">
+        <div>
+          <div class="camp-month-title">${MONTHS_FULL[m-1]} ${statusTag}</div>
+          ${winnerTag}
+        </div>
+        <div class="camp-month-toggle">▼</div>
+      </div>
+      <div class="camp-month-body ${isCurrent||isDone?'':'hidden'}">
+        ${hasData?ranking.map((r,i)=>`
+          <div class="camp-player-row">
+            <div class="camp-player-rank ${i===0?'g':''}">${RI[i]||'#'+(i+1)}</div>
+            <div class="camp-player-name">${r.player}</div>
+            <div class="camp-bar-bg"><div class="camp-bar-fill" style="width:${(r.effFactor/maxF*100).toFixed(1)}%;background:${BAR_COLORS[i%6]}"></div></div>
+            <div class="camp-player-val">${r.visits} idas · ⚡${r.effFactor.toFixed(2)} · ${fmtMoney(r.prize)}</div>
+          </div>
+        `).join(''):'<div style="color:var(--muted);font-size:13px;">Sem idas registradas neste mês.</div>'}
+      </div>
+    `;
+    monthsEl.appendChild(card);
+  });
+}
+
+function toggleCampMonth(header){
+  const body=header.nextElementSibling;
+  const toggle=header.querySelector('.camp-month-toggle');
+  body.classList.toggle('hidden');
+  toggle.textContent=body.classList.contains('hidden')?'▼':'▲';
+}
+
+// ── CHURRASCO ─────────────────────────────────────────────────────────────
+function computeChurrascoData(){
+  const sm=state.seasonStartMonth,em=state.seasonEndMonth;
+  const now=new Date(),curMonth=now.getMonth()+1,curYear=now.getFullYear();
+  const months=[];
+  for(let m=sm;m<=em;m++) months.push(m);
+  const perMonth=state.players.length*state.depositChurrasco;
+  const rows=months.map(m=>{
+    const lastDay=new Date(curYear,m,0);
+    const isDone=lastDay<now&&m!==curMonth;
+    const isCurrent=m===curMonth;
+    return{month:m,perMonth,isDone,isCurrent};
+  });
+  const monthsPassed=rows.filter(r=>r.isDone||r.isCurrent).length;
+  return{rows,total:months.length*perMonth,accrued:monthsPassed*perMonth,perMonth};
+}
+function renderChurrasco(){
+  const{rows,total,accrued}=computeChurrascoData();
+  document.getElementById('churrPerPerson').textContent=state.depositChurrasco;
+  document.getElementById('churrTotalVal').textContent=fmtMoney(accrued);
+  document.getElementById('churrTotalSub').textContent=`de ${fmtMoney(total)} no total da temporada`;
+  document.getElementById('churrGrandTotal').textContent=fmtMoney(total);
+  document.getElementById('churrMonthRows').innerHTML=rows.map(r=>{
+    const cls=r.isDone?'done':r.isCurrent?'active':'wait';
+    const txt=r.isDone?'✓ Contribuído':r.isCurrent?'▶ Mês atual':'⏳ Aguardando';
+    return`<div class="churr-row">
+      <div><div class="churr-month">${MONTHS_FULL[r.month-1]}</div><div class="churr-month-detail">${state.players.length} × ${fmtMoney(state.depositChurrasco)}</div></div>
+      <div><div class="churr-amount">${fmtMoney(r.perMonth)}</div><div class="churr-status ${cls}">${txt}</div></div>
+    </div>`;
+  }).join('');
+}
+
+// ── REGISTER ──────────────────────────────────────────────────────────────
+function updateFactorPreview(){
+  const t=parseFloat(document.getElementById('regTempo').value)||0;
+  const c=parseFloat(document.getElementById('regCalorias').value)||0;
+  if(!t&&!c){document.getElementById('factorPreviewVal').textContent='—';document.getElementById('factorBarFill').style.width='0%';return;}
+  const f=calcFator(t,c);
+  const raw=(t/60)*0.7+(c/500)*0.3;
+  const capped=raw>2;
+  document.getElementById('factorPreviewVal').textContent=f.toFixed(2)+(capped?' ⚡':'');
+  document.getElementById('factorPreviewVal').style.color=capped?'var(--gold)':'var(--blue)';
+  document.getElementById('factorBarFill').style.width=(f/2*100)+'%';
+}
+function populateRegSelect(){
+  document.getElementById('regPlayer').innerHTML=state.players.map(p=>`<option>${p}</option>`).join('');
+}
+function registerVisit(){
+  const player=document.getElementById('regPlayer').value;
+  const date=document.getElementById('regDate').value;
+  const tempo=parseFloat(document.getElementById('regTempo').value)||0;
+  const calorias=parseFloat(document.getElementById('regCalorias').value)||0;
+  if(!date){alert('Selecione uma data!');return;}
+  if(!tempo||!calorias){alert('Informe o tempo e as calorias!');return;}
+  if(state.visits.find(v=>v.player===player&&v.date===date)){alert('Já registrado nesse dia!');return;}
+  state.visits.push({player,date,tempo,calorias});
+  save();renderLog();renderRanking();
+  document.getElementById('regTempo').value='';
+  document.getElementById('regCalorias').value='';
+  updateFactorPreview();
+}
+function renderLog(){
+  const log=document.getElementById('logList');
+  const sorted=[...state.visits].sort((a,b)=>b.date.localeCompare(a.date));
+  if(!sorted.length){log.innerHTML='<div style="color:var(--muted);font-size:13px;">Nenhuma ida registrada ainda.</div>';return;}
+  log.innerHTML=sorted.map(v=>{
+    const idx=state.visits.findIndex(x=>x.player===v.player&&x.date===v.date);
+    const f=calcFator(v.tempo,v.calorias);
+    const capped=((parseFloat(v.tempo)||0)/60)*0.7+((parseFloat(v.calorias)||0)/500)*0.3>2;
+    return`<div class="log-item">
+      <div class="log-left">
+        <div class="log-name">${v.player}</div>
+        <div class="log-detail">${fmtDate(v.date)} · ${v.tempo}min · ${v.calorias}kcal</div>
+      </div>
+      <div class="log-right">
+        <div class="log-factor" style="color:${capped?'var(--gold)':'var(--blue)'}">⚡${f.toFixed(2)}${capped?' ⬆':''}</div>
+        <button class="log-remove" onclick="removeVisit(${idx})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function removeVisit(idx){state.visits.splice(idx,1);save();renderLog();renderRanking();}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────
+function renderSettings(){
+  document.getElementById('cfgStart').value=state.start;
+  document.getElementById('cfgEnd').value=state.end;
+  document.getElementById('cfgMonthly').value=state.depositMonthly;
+  document.getElementById('cfgChurrasco').value=state.depositChurrasco;
+  document.getElementById('cfgSeasonStart').value=state.seasonStartMonth;
+  document.getElementById('cfgSeasonEnd').value=state.seasonEndMonth;
+  renderPlayerTags();updateDepositPreview();
+}
+function updateDepositPreview(){
+  const monthly=parseFloat(document.getElementById('cfgMonthly').value)||0;
+  const churr=parseFloat(document.getElementById('cfgChurrasco').value)||0;
+  const n=state.players.length;
+  const sm=parseInt(document.getElementById('cfgSeasonStart').value)||7;
+  const em=parseInt(document.getElementById('cfgSeasonEnd').value)||12;
+  const nM=Math.max(0,em-sm+1);
+  document.getElementById('depositPreview').innerHTML=`
+    <div class="dep-row"><span class="lbl">Total por pessoa/mês</span><span class="val">${fmtMoney(monthly+churr)}</span></div>
+    <div class="dep-divider"></div>
+    <div class="dep-row"><span class="lbl">→ Prêmio do mês (${n} pessoas)</span><span class="val green">${fmtMoney(monthly*n)}</span></div>
+    <div class="dep-row"><span class="lbl">→ Churrasco por mês (${n} pessoas)</span><span class="val gold">${fmtMoney(churr*n)}</span></div>
+    <div class="dep-divider"></div>
+    <div class="dep-example">Temporada: ${nM} meses · Caixa total churrasco: <strong style="color:var(--gold)">${fmtMoney(churr*n*nM)}</strong></div>
+  `;
+}
+['cfgMonthly','cfgChurrasco','cfgSeasonStart','cfgSeasonEnd'].forEach(id=>{
+  document.addEventListener('input',e=>{if(e.target.id===id)updateDepositPreview();});
+});
+function renderPlayerTags(){
+  document.getElementById('playerTags').innerHTML=state.players.map((p,i)=>
+    `<div class="player-tag">${p} <button onclick="removePlayer(${i})">×</button></div>`
+  ).join('');
+}
+function addPlayer(){
+  const name=document.getElementById('newPlayerName').value.trim();
+  if(!name||state.players.includes(name))return;
+  state.players.push(name);
+  document.getElementById('newPlayerName').value='';
+  renderPlayerTags();populateRegSelect();updateDepositPreview();
+}
+function removePlayer(i){
+  if(state.players.length<=2){alert('Mínimo 2!');return;}
+  state.players.splice(i,1);renderPlayerTags();populateRegSelect();updateDepositPreview();
+}
+function saveSettings(){
+  state.start=document.getElementById('cfgStart').value;
+  state.end=document.getElementById('cfgEnd').value;
+  state.depositMonthly=parseFloat(document.getElementById('cfgMonthly').value)||100;
+  state.depositChurrasco=parseFloat(document.getElementById('cfgChurrasco').value)||50;
+  state.seasonStartMonth=parseInt(document.getElementById('cfgSeasonStart').value);
+  state.seasonEndMonth=parseInt(document.getElementById('cfgSeasonEnd').value);
+  save();renderRanking();renderChurrasco();alert('Configuração salva!');
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────
+function showTab(name){
+  ['ranking','dashboard','h2h','campeonato','churrasco','register','rules','settings'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('hidden',t!==name);
+  });
+  document.querySelectorAll('.tab').forEach((btn,i)=>{
+    btn.classList.toggle('active',['ranking','dashboard','h2h','campeonato','churrasco','register','rules','settings'][i]===name);
+  });
+  if(name==='register'){populateRegSelect();renderLog();}
+  if(name==='settings')renderSettings();
+  if(name==='churrasco')renderChurrasco();
+  if(name==='dashboard')initDashboard();
+  if(name==='h2h'){initH2H();renderH2H();}
+  if(name==='campeonato')renderCampeonato();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+document.getElementById('regDate').value=new Date().toISOString().slice(0,10);
+renderRanking();
+</script>
+</body>
+</html>
